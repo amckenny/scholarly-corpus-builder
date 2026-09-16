@@ -1,0 +1,66 @@
+name: Update scholarly corpus
+
+on:
+  schedule:
+    # Daily watchdog. Once started, each corpus continues itself with Durable Object alarms.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: update-scholarly-corpus
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Check out corpus configurations
+        uses: actions/checkout@v5
+
+      - name: Start or resume each configured corpus runner
+        env:
+          SCHOLARLY_RUN_SECRET: ${{ secrets.SCHOLARLY_RUN_SECRET }}
+          WORKER_RUN_BASE_URL: ${{ vars.WORKER_RUN_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${SCHOLARLY_RUN_SECRET}" ]; then
+            echo "::error::Repository secret SCHOLARLY_RUN_SECRET is not configured."
+            exit 1
+          fi
+          if [ -z "${WORKER_RUN_BASE_URL}" ]; then
+            echo "::error::Repository variable WORKER_RUN_BASE_URL is not configured."
+            exit 1
+          fi
+          mapfile -t corpus_ids < <(node scripts/generate-corpora.mjs --list)
+          if [ "${#corpus_ids[@]}" -eq 0 ]; then
+            echo "::error::No enabled corpus configurations were found."
+            exit 1
+          fi
+
+          failures=0
+          for corpus_id in "${corpus_ids[@]}"; do
+            echo "::group::Run ${corpus_id}"
+            if curl \
+              --fail-with-body \
+              --show-error \
+              --silent \
+              --max-time 60 \
+              --request POST \
+              --header "authorization: Bearer ${SCHOLARLY_RUN_SECRET}" \
+              "${WORKER_RUN_BASE_URL}/${corpus_id}"; then
+              echo
+            else
+              failures=$((failures + 1))
+              echo "::error::Corpus run failed: ${corpus_id}"
+            fi
+            echo "::endgroup::"
+          done
+
+          if [ "${failures}" -ne 0 ]; then
+            echo "::error::${failures} corpus run(s) failed."
+            exit 1
+          fi

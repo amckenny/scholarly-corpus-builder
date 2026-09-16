@@ -1,0 +1,20 @@
+{
+  "name": "scholarly-corpus-builder",
+	"version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:corpora": "node scripts/generate-corpora.mjs",
+    "deploy": "npm run generate:corpora && wrangler deploy",
+    "dev": "wrangler dev",
+    "type-check": "npm run generate:corpora && tsc --noEmit",
+    "test": "npm run generate:corpora && vitest run"
+  },
+	"dependencies": {},
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20260827.1",
+    "typescript": "6.0.3",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.105.0"
+  }
+}

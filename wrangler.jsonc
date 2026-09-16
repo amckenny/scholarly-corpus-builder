@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "scholarly-verification-mcp",
+  "main": "src/index.ts",
+  "keep_vars": true,
+  "preview_urls": false,
+  "compatibility_date": "2026-07-28",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CORPUS_JOBS",
+        "class_name": "CorpusJobStore"
+      },
+      {
+        "name": "CORPUS_RUNNERS",
+        "class_name": "CorpusRunnerStore"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v3-corpus-jobs",
+      "new_sqlite_classes": ["CorpusJobStore"]
+    },
+    {
+      "tag": "v8-corpus-runners",
+      "new_sqlite_classes": ["CorpusRunnerStore"]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

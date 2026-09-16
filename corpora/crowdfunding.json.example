@@ -1,0 +1,108 @@
+{
+  "$schema": "./corpus.schema.json",
+  "schema_version": 1,
+  "config_version": 1,
+  "enabled": true,
+  "corpus_id": "crowdfunding",
+  "display_name": "Crowdfunding Literature",
+  "spreadsheet_key": "crowdfunding",
+  "job_handle": "7b38733a-0663-4c5e-855c-2c8cf9da5d01",
+  "initial_load": {
+    "lookback_years": 10
+  },
+  "discovery": {
+    "source_types": ["journal-article"],
+    "rows_per_page": 100,
+    "journals": [
+      { "journal": "Journal of Business Venturing", "issn": "0883-9026" },
+      { "journal": "Entrepreneurship Theory and Practice", "issn": "1042-2587" },
+      { "journal": "Strategic Entrepreneurship Journal", "issn": "1932-4391" },
+      { "journal": "Management Science", "issn": "0025-1909" }
+    ],
+    "query_families": [
+      {
+        "query_id": "Q1_CROWDFUNDING",
+        "label": "Crowdfunding and crowdsourcing",
+        "query": "crowdfunding crowd funding crowdsourcing"
+      },
+      {
+        "query_id": "Q2_CAMPAIGNS",
+        "label": "Campaigns and pitches",
+        "query": "crowdfunding campaign pitch reward equity donation"
+      },
+      {
+        "query_id": "Q3_BACKERS",
+        "label": "Backers and platforms",
+        "query": "crowdfunding backers investors platforms Kickstarter Indiegogo"
+      }
+    ],
+    "retrieval_gate": {
+      "exclude_title_prefixes": [
+        "Issue Information", "Table of Contents", "Publisher Information", "Editorial Board",
+        "Front Matter", "Back Matter", "Supplemental Material for", "Call for Papers",
+        "Corrigendum", "Erratum", "Correction to"
+      ],
+      "include_any_phrases": [
+        "crowdfunding", "crowd funding", "crowdsourcing", "Kickstarter", "Indiegogo"
+      ],
+      "include_all_groups": [
+        ["crowd", "funding"], ["reward", "campaign"], ["equity", "crowdfunding"]
+      ]
+    }
+  },
+  "processing": {
+    "classification_batch_size": 5,
+    "continuation_delay_seconds": 5,
+    "max_backoff_seconds": 900
+  },
+  "screening": {
+    "version": 1,
+    "objective": "Identify scholarship in which crowdfunding is a central phenomenon, context, market, platform, financing mechanism, or theoretical contribution.",
+    "include_when": [
+      "Crowdfunding is central to the research question, theory, empirical setting, or contribution.",
+      "The article develops or tests implications for crowdfunding campaigns, creators, backers, investors, platforms, or outcomes.",
+      "Crowdfunding is a material component of a broader entrepreneurial-finance or digital-platform study."
+    ],
+    "exclude_when": [
+      "Crowdfunding appears only as an example, passing reference, or future-research suggestion.",
+      "The article studies crowds or online communities without a material crowdfunding component.",
+      "Do not infer topical fit merely because Crossref returned the article for a search query."
+    ],
+    "hard_exclusion_classification": "excluded_off_topic",
+    "unresolved_classification": "excluded_unresolved",
+    "classifications": [
+      {
+        "id": "candidate_direct",
+        "description": "Crowdfunding is central to the research question, method, setting, or contribution.",
+        "disposition": "candidate",
+        "durable_exclusion": false,
+        "unresolved": false
+      },
+      {
+        "id": "candidate_adjacent",
+        "description": "Crowdfunding is a material component of a broader study and is useful to the corpus.",
+        "disposition": "candidate",
+        "durable_exclusion": false,
+        "unresolved": false
+      },
+      {
+        "id": "excluded_off_topic",
+        "description": "Crowdfunding is absent or only incidental.",
+        "disposition": "excluded",
+        "durable_exclusion": true,
+        "unresolved": false
+      },
+      {
+        "id": "excluded_unresolved",
+        "description": "The available title and abstract evidence cannot establish topical fit.",
+        "disposition": "excluded",
+        "durable_exclusion": false,
+        "unresolved": true
+      }
+    ]
+  },
+  "incremental_updates": {
+    "overlap_days": 60,
+    "minimum_gap_days": 7
+  }
+}
